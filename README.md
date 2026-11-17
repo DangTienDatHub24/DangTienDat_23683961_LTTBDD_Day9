@@ -3,6 +3,8 @@
 Bản **thiếu code** để sinh viên hoàn thiện theo bài thực hành Buổi 9. Chạy được ngay; các phần chưa làm hiện khung cam viền đứt `TODO BT9.x`.
 
 ## Chạy
+Cần Node.js 22.13+ (nhánh 22), 24.3+ (nhánh 24), hoặc 26+ và Expo Go hỗ trợ SDK 58.
+
 ```bash
 npm install
 npm run api          # terminal 1: json-server http://localhost:3000
@@ -15,7 +17,7 @@ Tài khoản demo: `demo@bookstore.vn` / `123456`
 
 > Đăng nhập là **giả lập** (so sánh mật khẩu ở client) chỉ để học; hệ thống thật phải xác thực ở server và lưu token bằng SecureStore.
 
-Stack: Expo SDK 57 · React Native 0.86 · TypeScript · React Navigation 7 · Redux Toolkit · Axios · json-server 0.17.4.
+Stack: Expo SDK 58 · React Native 0.88 · TypeScript · React Navigation 7 · Redux Toolkit · Axios · json-server 0.17.4.
 Giao diện mô tả: xem `docs/UI.md` và `docs/ui/*.png`.
 
 ## Danh sách việc cần làm

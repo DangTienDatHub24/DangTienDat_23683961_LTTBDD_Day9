@@ -15,6 +15,7 @@ import { getErrorMessage } from "../api/client";
 import { useDebounce } from "../hooks/useDebounce";
 import { useCart } from "../store/hooks";
 import { filterBooks, PriceRange } from "../utils/filters";
+import { showMessage } from "../utils/dialog";
 import { TabScreenProps } from "../navigation/types";
 import { Book, Category } from "../types";
 import { colors } from "../theme";
@@ -27,6 +28,7 @@ export function HomeScreen({ navigation, route }: TabScreenProps<"Home">) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   // --- bộ lọc ---
   const [searchOpen, setSearchOpen] = useState(false);
@@ -35,9 +37,6 @@ export function HomeScreen({ navigation, route }: TabScreenProps<"Home">) {
   const [priceRange, setPriceRange] = useState<PriceRange>(null);
   const debouncedKeyword = useDebounce(keyword, 400); // gõ xong 400ms mới lọc
 
-  // TODO BT9.6: kéo-để-làm-mới. Tạo state `refreshing` + hàm onRefresh gọi lại getBooks/getCategories (Promise.all)
-  // KHÔNG bật màn loading toàn trang (giữ danh sách đang hiển thị). Rồi truyền refreshing/onRefresh cho <BookGrid>
-  // (BookGrid đã nhận sẵn 2 prop này).
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -50,6 +49,20 @@ export function HomeScreen({ navigation, route }: TabScreenProps<"Home">) {
       setError(getErrorMessage(e));
     } finally {
       setLoading(false);
+    }
+  }, []);
+
+  // Làm mới với vòng xoay nhỏ, giữ nguyên danh sách và các bộ lọc đang dùng.
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const [bookList, categoryList] = await Promise.all([getBooks(), getCategories()]);
+      setBooks(bookList);
+      setCategories(categoryList);
+    } catch (e) {
+      showMessage("Không thể làm mới", getErrorMessage(e));
+    } finally {
+      setRefreshing(false);
     }
   }, []);
 
@@ -111,6 +124,8 @@ export function HomeScreen({ navigation, route }: TabScreenProps<"Home">) {
       ) : (
         <BookGrid
           data={visibleBooks}
+          refreshing={refreshing}
+          onRefresh={onRefresh}
           onPressBook={(b) => navigation.navigate("BookDetail", { bookId: b.id })}
           ListHeaderComponent={header}
           ListEmptyComponent={
