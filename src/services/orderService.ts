@@ -19,8 +19,10 @@ export async function createOrder(payload: NewOrder): Promise<Order> {
   return res.data;
 }
 
-// TODO BT9.3: GET /orders?userId=…&_sort=createdAt&_order=desc  (mới nhất lên đầu)
+// Lấy đơn hàng của tài khoản hiện tại, mới nhất lên đầu.
 export async function getOrdersByUser(userId: number): Promise<Order[]> {
-  void userId;
-  throw new Error("TODO BT9.3: chưa viết getOrdersByUser");
+  const res = await api.get<Order[]>("/orders", {
+    params: { userId, _sort: "createdAt", _order: "desc" },
+  });
+  return res.data;
 }

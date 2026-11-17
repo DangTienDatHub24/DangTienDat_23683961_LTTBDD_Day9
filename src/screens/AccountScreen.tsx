@@ -1,12 +1,12 @@
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Header } from "../components/Header";
 import { PrimaryButton } from "../components/PrimaryButton";
 import { MenuItem } from "../components/MenuItem";
 import { TodoBox } from "../components/TodoBox";
 import { useAuth, useWishlist } from "../store/hooks";
 import { TabScreenProps } from "../navigation/types";
-import { colors } from "../theme";
+import { colors, radius } from "../theme";
 
 export function AccountScreen({ navigation }: TabScreenProps<"Account">) {
   const { user, isLoggedIn, signOut } = useAuth();
@@ -21,8 +21,14 @@ export function AccountScreen({ navigation }: TabScreenProps<"Account">) {
             <Text style={styles.avatar}>🙂</Text>
             <Text style={styles.name}>{user.name}</Text>
             <Text style={styles.email}>{user.email}</Text>
-            {/* TODO BT9.4c: hiện SĐT (nếu có) + nút “✎ Chỉnh sửa” → navigation.navigate("EditProfile") */}
-            <TodoBox id="BT9.4c">{"Hiện số điện thoại + nút Chỉnh sửa → màn EditProfile"}</TodoBox>
+            {user.phone ? <Text style={styles.email}>📞 {user.phone}</Text> : null}
+            <Pressable
+              style={styles.editBtn}
+              onPress={() => navigation.navigate("EditProfile")}
+              accessibilityRole="button"
+            >
+              <Text style={styles.editText}>✎ Chỉnh sửa</Text>
+            </Pressable>
           </View>
         ) : (
           <View style={styles.profile}>
@@ -36,8 +42,9 @@ export function AccountScreen({ navigation }: TabScreenProps<"Account">) {
         )}
 
         <View style={styles.menu}>
-          {/* TODO BT9.5f / BT9.3d: thêm 2 <MenuItem> — 🔔 Thông báo → "Notifications"; 🧾 Đơn hàng của tôi → "Orders" */}
-          <TodoBox id="BT9.3d · BT9.5f">{"Thêm menu 🔔 Thông báo và 🧾 Đơn hàng của tôi"}</TodoBox>
+          {/* TODO BT9.5f: thêm menu Thông báo → "Notifications" */}
+          <TodoBox id="BT9.5f">{"Thêm menu 🔔 Thông báo → màn Notifications"}</TodoBox>
+          <MenuItem emoji="🧾" label="Đơn hàng của tôi" onPress={() => navigation.navigate("Orders")} />
           <MenuItem emoji="❤️" label="Danh sách yêu thích" hint={ids.length ? `${ids.length} sách` : undefined} onPress={() => navigation.navigate("Wishlist")} />
         </View>
 
@@ -58,6 +65,8 @@ const styles = StyleSheet.create({
   avatar: { fontSize: 64 },
   name: { fontSize: 20, fontWeight: "800", color: colors.text },
   email: { color: colors.muted },
+  editBtn: { marginTop: 6, paddingHorizontal: 16, paddingVertical: 8, borderRadius: radius.md, borderWidth: 1, borderColor: colors.indigo },
+  editText: { color: colors.indigo, fontWeight: "700" },
   menu: { gap: 8 },
   actions: { alignSelf: "stretch", gap: 10, marginTop: 6 },
 });
