@@ -39,6 +39,8 @@ Empty state: 🧾 "Bạn chưa có đơn hàng nào" + nút về trang chủ.
 ![branding](ui/05_branding.png)
 `app.json`: name "BookStore", icon 1024², splash nền `#0B1F5C`, adaptive icon, bundle id `com.example.bookstore`.
 
+Với SDK 58, cấu hình splash nằm trong `plugins` → `expo-splash-screen` (ảnh `assets/splash.png`, `resizeMode: "contain"`). Icon và splash native cần kiểm tra trên bản build riêng; Expo Go không thể hiện đầy đủ giao diện khởi động này.
+
 ## Bảng đối chiếu
 | Ảnh | Bài |
 |---|---|
