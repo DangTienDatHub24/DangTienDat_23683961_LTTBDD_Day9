@@ -3,7 +3,6 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Header } from "../components/Header";
 import { PrimaryButton } from "../components/PrimaryButton";
 import { MenuItem } from "../components/MenuItem";
-import { TodoBox } from "../components/TodoBox";
 import { useAuth, useWishlist } from "../store/hooks";
 import { TabScreenProps } from "../navigation/types";
 import { colors, radius } from "../theme";
@@ -42,8 +41,7 @@ export function AccountScreen({ navigation }: TabScreenProps<"Account">) {
         )}
 
         <View style={styles.menu}>
-          {/* TODO BT9.5f: thêm menu Thông báo → "Notifications" */}
-          <TodoBox id="BT9.5f">{"Thêm menu 🔔 Thông báo → màn Notifications"}</TodoBox>
+          <MenuItem emoji="🔔" label="Thông báo" onPress={() => navigation.navigate("Notifications")} />
           <MenuItem emoji="🧾" label="Đơn hàng của tôi" onPress={() => navigation.navigate("Orders")} />
           <MenuItem emoji="❤️" label="Danh sách yêu thích" hint={ids.length ? `${ids.length} sách` : undefined} onPress={() => navigation.navigate("Wishlist")} />
         </View>

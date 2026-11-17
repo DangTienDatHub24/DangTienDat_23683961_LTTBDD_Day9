@@ -1,10 +1,9 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, View } from "react-native";
 import { NotificationItem } from "../components/NotificationItem";
 import { EmptyState } from "../components/EmptyState";
 import { LoadingView } from "../components/LoadingView";
 import { ErrorView } from "../components/ErrorView";
-import { TodoBox } from "../components/TodoBox";
 import { getNotifications, markAsRead } from "../services/notificationService";
 import { getErrorMessage } from "../api/client";
 import { useAuth } from "../store/hooks";
@@ -19,18 +18,35 @@ export function NotificationsScreen({ navigation }: RootScreenProps<"Notificatio
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    // TODO BT9.5c: if (!user) return; loading=true, error=null; setData(await getNotifications(user.id)); catch/finally như các màn khác
-    void getNotifications; void getErrorMessage; void setData; void setError;
-    setLoading(false);
+    if (!user) return;
+    setLoading(true);
+    setError(null);
+    try {
+      setData(await getNotifications(user.id));
+    } catch (e) {
+      setError(getErrorMessage(e));
+    } finally {
+      setLoading(false);
+    }
   }, [user]);
   useEffect(() => {
     load();
   }, [load]);
 
   const open = async (n: AppNotification) => {
-    // TODO BT9.5d: (1) nếu chưa đọc: cập nhật giao diện NGAY (read:true) rồi gọi markAsRead(n.id); lỗi → hoàn lại read:false
-    // (2) điều hướng: target.screen === "Orders" → navigate("Orders"); "BookDetail" → navigate("BookDetail", { bookId })
-    void n; void markAsRead; void navigation;
+    if (!n.read) {
+      // Đổi giao diện ngay, không chờ API; nếu lỗi thì khôi phục trạng thái chưa đọc.
+      setData((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: true } : x)));
+      markAsRead(n.id).catch(() => {
+        setData((prev) => prev.map((x) => (x.id === n.id ? { ...x, read: false } : x)));
+      });
+    }
+
+    if (n.target?.screen === "Orders") {
+      navigation.navigate("Orders");
+    } else if (n.target?.screen === "BookDetail" && n.target.bookId !== undefined) {
+      navigation.navigate("BookDetail", { bookId: n.target.bookId });
+    }
   };
 
   if (!isLoggedIn) {
@@ -39,12 +55,20 @@ export function NotificationsScreen({ navigation }: RootScreenProps<"Notificatio
   if (loading) return <LoadingView />;
   if (error) return <ErrorView message={error} onRetry={load} />;
 
-  void NotificationItem; void open;
   return (
     <View style={styles.container}>
-      <TodoBox id="BT9.5e">{"FlatList thông báo: renderItem={({item}) => <NotificationItem item={item} onPress={open} />}; ListEmptyComponent: “Chưa có thông báo nào”. Data hiện có: " + data.length}</TodoBox>
+      <FlatList
+        data={data}
+        keyExtractor={(n) => String(n.id)}
+        contentContainerStyle={styles.list}
+        renderItem={({ item }) => <NotificationItem item={item} onPress={open} />}
+        ListEmptyComponent={<EmptyState emoji="🔔" title="Chưa có thông báo nào" />}
+      />
     </View>
   );
 }
 
-const styles = StyleSheet.create({ container: { flex: 1, backgroundColor: colors.bg, padding: 12 } });
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.bg },
+  list: { padding: 12, gap: 8, flexGrow: 1 },
+});
