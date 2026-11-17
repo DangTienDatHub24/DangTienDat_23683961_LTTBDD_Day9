@@ -9,11 +9,14 @@ export interface NewOrder {
   paymentMethod: PaymentMethod;
 }
 
-// TODO BT9.2: POST /orders — gửi { ...payload, status: "pending", createdAt: new Date().toISOString() }
-// Gợi ý: api.post<Order>("/orders", body) rồi return res.data
+// Tạo đơn hàng mới với trạng thái chờ xử lý và thời gian hiện tại.
 export async function createOrder(payload: NewOrder): Promise<Order> {
-  void api; void payload;
-  throw new Error("TODO BT9.2: chưa viết createOrder");
+  const res = await api.post<Order>("/orders", {
+    ...payload,
+    status: "pending",
+    createdAt: new Date().toISOString(),
+  });
+  return res.data;
 }
 
 // TODO BT9.3: GET /orders?userId=…&_sort=createdAt&_order=desc  (mới nhất lên đầu)

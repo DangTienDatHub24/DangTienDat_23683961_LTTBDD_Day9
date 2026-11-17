@@ -40,12 +40,39 @@ export function CheckoutScreen({ navigation, route }: RootScreenProps<"Checkout"
 
   const submit = async () => {
     setTouched(true);
-    if (!valid || !user) return;
+    if (!valid || !user || loading) return;
 
-    // TODO BT9.2: (2) bật loading, xoá submitError  (3) await createOrder({...})  (4) clear() giỏ
-    // (5) showMessage("Đặt hàng thành công 🎉", ..., () => navigation.navigate("Tabs", { screen: "Home" }))
-    // (6) catch → setSubmitError(getErrorMessage(e)) và GIỮ NGUYÊN giỏ  (7) finally tắt loading
-    void createOrder; void clear; void showMessage; void getErrorMessage; void setLoading; void setSubmitError;
+    setLoading(true);
+    setSubmitError(null);
+    try {
+      await createOrder({
+        userId: user.id,
+        items: items.map((i) => ({
+          bookId: i.bookId,
+          title: i.title,
+          price: i.price,
+          quantity: i.quantity,
+        })),
+        total,
+        address: {
+          name: name.trim(),
+          phone: phone.trim(),
+          address: address.trim(),
+        },
+        paymentMethod: payment,
+      });
+
+      // Chỉ xoá giỏ sau khi API thành công; useAutoPersist tự lưu giỏ rỗng.
+      clear();
+      showMessage("Đặt hàng thành công 🎉", "Cảm ơn bạn đã mua sắm tại BookStore!", () =>
+        navigation.navigate("Tabs", { screen: "Home" })
+      );
+    } catch (e) {
+      // Giữ nguyên giỏ để người dùng có thể bấm thử lại.
+      setSubmitError(getErrorMessage(e));
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!isLoggedIn) return null;
